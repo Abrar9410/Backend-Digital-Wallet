@@ -6,7 +6,7 @@ export enum Role {
     AGENT = "AGENT"
 };
 
-export enum activeStatus {
+export enum ActiveStatus {
     ACTIVE = "ACTIVE",
     INACTIVE = "INACTIVE",
     BLOCKED = "BLOCKED"
@@ -21,8 +21,8 @@ export interface IUser {
     picture?: string;
     address?: string;
     isDeleted?: boolean;
-    activeStatus?: activeStatus;
-    isVerified?: boolean;
+    activeStatus?: ActiveStatus;
+    // isVerified?: boolean;
     role: Role;
     balance: number;
 };

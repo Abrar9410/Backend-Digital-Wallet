@@ -26,3 +26,51 @@ const startServer = async () => {
 };
 
 startServer();
+
+
+// SIGTERM Error
+process.on("SIGTERM", () => {
+    if (envVars.NODE_ENV === "development") {
+        console.log("SIGTERM signal received! Server shutting down...");
+    };
+
+    if (server) {
+        server.close(() => {
+            process.exit(1);
+        });
+    };
+
+    process.exit(1);
+});
+
+
+// Unhandled Rejection Error
+process.on("unhandledRejection", (error) => {
+    if (envVars.NODE_ENV === "development") {
+        console.log("Unhandled Rejection detected! Server shutting down...", error);
+    };
+
+    if (server) {
+        server.close(() => {
+            process.exit(1);
+        });
+    };
+
+    process.exit(1);
+});
+
+
+// Uncaught Exception Error
+process.on("uncaughtException", (error) => {
+    if (envVars.NODE_ENV === "development") {
+        console.log("Uncaught Exception detected! Server shutting down...", error);
+    };
+
+    if (server) {
+        server.close(() => {
+            process.exit(1);
+        });
+    };
+
+    process.exit(1);
+});
