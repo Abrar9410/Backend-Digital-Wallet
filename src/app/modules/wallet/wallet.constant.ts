@@ -1,0 +1,1 @@
+export const walletSearchableFields = ["owner_email"];

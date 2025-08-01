@@ -12,6 +12,13 @@ export enum ActiveStatus {
     BLOCKED = "BLOCKED"
 };
 
+export enum AgentStatus {
+    APPROVED = "APPROVED",
+    SUSPENDED = "SUSPENDED",
+    REQUESTED = "REQUESTED",
+    NOT_APPLIED = "N/A",
+};
+
 export interface IUser {
     _id?: Types.ObjectId;
     name: string;
@@ -22,7 +29,7 @@ export interface IUser {
     address?: string;
     isDeleted?: boolean;
     activeStatus?: ActiveStatus;
+    agentStatus?: AgentStatus;
     // isVerified?: boolean;
     role: Role;
-    balance: number;
 };

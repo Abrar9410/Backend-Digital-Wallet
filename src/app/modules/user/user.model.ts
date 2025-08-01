@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { ActiveStatus, IUser, Role } from "./user.interface";
+import { ActiveStatus, AgentStatus, IUser, Role } from "./user.interface";
 
 
 
@@ -21,8 +21,12 @@ const userSchema = new Schema<IUser>({
         enum: Object.values(ActiveStatus),
         default: ActiveStatus.ACTIVE
     },
+    agentStatus: {
+        type: String,
+        enum: Object.values(AgentStatus),
+        default: AgentStatus.NOT_APPLIED
+    },
     // isVerified: { type: Boolean, default: false },
-    balance: { type: Number, default: 50.00}
 }, {
     timestamps: true,
     versionKey: false
