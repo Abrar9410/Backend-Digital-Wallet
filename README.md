@@ -122,11 +122,6 @@ npm start
 - **PATCH** `/api/users/agent-approval/:id` – Approve or Deny Agent Request (Admin Route)  
 - **PATCH** `/api/users/update-user/:id` – Update a user (User himself or Admin)  
 
-#### Example Query:
-
-```http
-GET /api/users/all-users?sortBy=createdAt&sort=desc&limit=5
-```
 
 ### Auth Endpoints
 
