@@ -105,7 +105,7 @@ npm start
 ## ADMIN Credentials
 
 - ✅ **Email** - admin@digitalwallet.com
-- ✅ **Password** - *Admin01*
+- ✅ **Password** - `*Admin01*`
 
 --- 
 
