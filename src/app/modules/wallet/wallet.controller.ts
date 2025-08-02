@@ -34,8 +34,8 @@ const getMyWallet = catchAsync(async (req: Request, res: Response, next: NextFun
 });
 
 const getSingleWallet = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const ownerEmail = req.params.ownerEmail;
-    const result = await WalletServices.getSingleWalletService(ownerEmail);
+    const walletId = req.params.walletId;
+    const result = await WalletServices.getSingleWalletService(walletId);
 
     sendResponse(res, {
         success: true,
@@ -67,8 +67,49 @@ const cashIn = catchAsync(async (req: Request, res: Response, next: NextFunction
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
-        message: "Top-Up Successful!",
+        message: "Cash-In Successful!",
         data: { newBalance: result }
+    });
+});
+
+const cashOut = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+    const userEmail = req.params.userEmail;
+    const amount = req.body.amount;
+    const result = await WalletServices.cashOutService(decodedToken, userEmail, amount);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Cash-Out Successful!",
+        data: { newBalance: result }
+    });
+});
+
+const sendMoney = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+    const receiverEmail = req.params.receiverEmail;
+    const amount = req.body.amount;
+    const result = await WalletServices.sendMoneyService(decodedToken, receiverEmail, amount);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Money Sent Successfully!",
+        data: { newBalance: result }
+    });
+});
+
+const updateWallet = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id;
+    const payload = req.body;
+    const updatedWallet = await WalletServices.updateWalletService(id, payload);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Wallet Updated Successfully!",
+        data: updatedWallet
     });
 });
 
@@ -79,4 +120,7 @@ export const WalletControllers = {
     getSingleWallet,
     addMoney,
     cashIn,
+    cashOut,
+    sendMoney,
+    updateWallet
 };

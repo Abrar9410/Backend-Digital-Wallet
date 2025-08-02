@@ -28,7 +28,7 @@ const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunc
 
     sendResponse(res, {
         success: true,
-        statusCode: httpStatus.CREATED,
+        statusCode: httpStatus.OK,
         message: "User Updated Successfully!",
         data: updatedUser
     });
@@ -93,10 +93,24 @@ const getSingleUser = catchAsync(async (req: Request, res: Response, next: NextF
 
     sendResponse(res, {
         success: true,
-        statusCode: httpStatus.CREATED,
+        statusCode: httpStatus.OK,
         message: "User Retrieved Successfully",
         data: result.data
     })
+});
+
+const agentApproval = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.id;
+    const payload = req.body;
+    
+    await UserServices.agentApprovalService(userId, payload);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "Agent-Status Updated Successfully!",
+        data: null
+    });
 });
 
 export const UserControllers = {
@@ -106,5 +120,6 @@ export const UserControllers = {
     getAgentRequests,
     getMe,
     agentRequest,
-    getSingleUser
+    getSingleUser,
+    agentApproval
 };

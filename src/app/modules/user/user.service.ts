@@ -39,12 +39,11 @@ const createUserService = async (payload: Partial<IUser>) => {
 const updateUserService = async (userId: string, payload: Partial<IUser>, decodedToken: JwtPayload) => {
     /**
      * email - cannot be updated -> already taken care of using zod schema
-     * name, phone, address, password
-     * password re-hashing
+     * name, phone, address
      * Only ADMIN can update -> role, isDeleted, activeStatus: BLOCKED
      */
 
-    const user = await Users.findById(userId);
+    const user = await Users.findById(userId).select("-password");
     if (!user) {
         throw new AppError(httpStatus.NOT_FOUND, "User Not Found!");
     };
@@ -55,22 +54,12 @@ const updateUserService = async (userId: string, payload: Partial<IUser>, decode
         };
     };
 
-    if (payload.role) {
+    if (payload.role || payload.agentStatus) {
         if (decodedToken.role === Role.USER || decodedToken.role === Role.AGENT) {
-            throw new AppError(httpStatus.FORBIDDEN, "You are not authorized to update role!");
+            throw new AppError(httpStatus.FORBIDDEN, "You are not authorized to update Role or Agent-Status!");
         };
-        if (!payload.agentStatus) {
-            throw new AppError(httpStatus.NOT_ACCEPTABLE, "You must provide agentStatus too if you want to update user role!");
-        };
-    };
-    
-    if (payload.agentStatus) {
-        if (decodedToken.role === Role.USER || decodedToken.role === Role.AGENT) {
-            throw new AppError(httpStatus.FORBIDDEN, "You are not authorized to update agentStatus!");
-        };
-        if (!payload.role) {
-            throw new AppError(httpStatus.NOT_ACCEPTABLE, "You must provide role too if you want to update agentStatus!");
-        };
+
+        throw new AppError(httpStatus.NOT_ACCEPTABLE, "Role and Agent-Status can Not be Updated through this Route!");
     };
 
     if (payload.activeStatus || payload.isDeleted /*|| payload.isVerified*/) {
@@ -80,7 +69,7 @@ const updateUserService = async (userId: string, payload: Partial<IUser>, decode
     };
 
     if (payload.password) {
-        throw new AppError(httpStatus.NOT_ACCEPTABLE, "Password Can Not be Updated on this Route! If You Want to Change Your Password then Go to '/reset-password' Route");
+        throw new AppError(httpStatus.NOT_ACCEPTABLE, "Password Can Not be Updated on this Route! If You Want to Change Your Password then Go to 'auth/change-password' Route");
     };
 
     const updatedUser = await Users.findByIdAndUpdate(userId, payload, {new: true, runValidators: true});
@@ -90,7 +79,7 @@ const updateUserService = async (userId: string, payload: Partial<IUser>, decode
 
 const getAllUsersService = async (query: Record<string, string>) => {
 
-    const queryBuilder = new QueryBuilder(Users.find(), query)
+    const queryBuilder = new QueryBuilder(Users.find().select("-password"), query)
     const usersData = queryBuilder
         .filter()
         .search(userSearchableFields)
@@ -111,7 +100,7 @@ const getAllUsersService = async (query: Record<string, string>) => {
 
 const getAgentRequestsService = async (query: Record<string, string>) => {
 
-    const queryBuilder = new QueryBuilder(Users.find({agentStatus: AgentStatus.REQUESTED}), query)
+    const queryBuilder = new QueryBuilder(Users.find({agentStatus: AgentStatus.REQUESTED}).select("-password"), query)
     const usersData = queryBuilder
         .filter()
         .search(userSearchableFields)
@@ -131,7 +120,7 @@ const getAgentRequestsService = async (query: Record<string, string>) => {
 };
 
 const getMeService = async (userId: string) => {
-    const user = await Users.findById(userId).select("-password");
+    const user = await Users.findById(userId);
     
     return {
         data: user
@@ -162,6 +151,24 @@ const getSingleUserService = async (id: string) => {
     };
 };
 
+const agentApprovalService = async (userId: string, payload: Partial<IUser>) => {
+    const user = await Users.findById(userId);
+    if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, "User Not Found!");
+    };
+
+    if (payload.agentStatus === AgentStatus.APPROVED) {
+        payload.role = Role.AGENT;
+    } else {
+        payload.role = Role.USER
+    };
+
+    user.role = payload.role;
+    user.agentStatus = payload.agentStatus;
+
+    await user.save();
+};
+
 export const UserServices = {
     createUserService,
     updateUserService,
@@ -169,5 +176,6 @@ export const UserServices = {
     getAgentRequestsService,
     getMeService,
     agentRequestService,
-    getSingleUserService
+    getSingleUserService,
+    agentApprovalService
 };

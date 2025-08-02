@@ -5,7 +5,7 @@ import AppError from "../errorHelpers/AppError";
 import { verifyToken } from "../utils/jwt";
 import { Users } from "../modules/user/user.model";
 import httpStatus from "http-status-codes";
-import { ActiveStatus, AgentStatus, Role } from "../modules/user/user.interface";
+import { ActiveStatus } from "../modules/user/user.interface";
 
 
 
@@ -40,10 +40,6 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
         
         if (!authRoles.includes(verifiedToken.role)) {
             throw new AppError(403, "Forbidden!!! You are not permitted to view this route!");
-        };
-
-        if (verifiedToken.role === Role.AGENT && user.agentStatus !== AgentStatus.APPROVED) {
-            throw new AppError(403, "Forbidden!!! You are currently Not Approved as an Agent! Please contact Admin for details.");
         };
         
         req.user = verifiedToken;
