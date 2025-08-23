@@ -12,7 +12,7 @@ import { Wallets } from "../wallet/wallet.model";
 
 
 const createUserService = async (payload: Partial<IUser>) => {
-    const { email, password, ...rest } = payload;
+    const { email, password, role, ...rest } = payload;
 
     const user = await Users.findOne({email});
 
@@ -25,6 +25,7 @@ const createUserService = async (payload: Partial<IUser>) => {
     const newUser = await Users.create({
         email,
         password: hashedPassword,
+        agentStatus: role === Role.AGENT ? AgentStatus.REQUESTED : AgentStatus.NOT_APPLIED,
         ...rest
     });
 
