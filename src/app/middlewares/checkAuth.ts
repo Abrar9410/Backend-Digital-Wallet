@@ -12,7 +12,7 @@ import { ActiveStatus } from "../modules/user/user.interface";
 export const checkAuth = (...authRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
 
     try {
-        const token = req.headers.authorization;
+        const token = req.headers.authorization || req.cookies.token;
 
         if (!token) {
             throw new AppError(401, "Unauthorized Access!")

@@ -6,6 +6,7 @@ interface EnvConfig {
     PORT: string;
     DB_URL: string;
     NODE_ENV: "development" | "production";
+    FRONTEND_URL: string;
     SALT: string;
     JWT_SECRET: string;
     JWT_EXPIRESIN: string;
@@ -19,6 +20,7 @@ const loadEnvVariables = (): EnvConfig => {
         "PORT",
         "DB_URL",
         "NODE_ENV",
+        "FRONTEND_URL",
         "SALT",
         "JWT_SECRET",
         "JWT_EXPIRESIN",
@@ -36,6 +38,7 @@ const loadEnvVariables = (): EnvConfig => {
         PORT: process.env.PORT as string,
         DB_URL: process.env.DB_URL as string,
         NODE_ENV: process.env.NODE_ENV as "development" | "production",
+        FRONTEND_URL: process.env.FRONTEND_URL as string,
         SALT: process.env.SALT as string,
         JWT_SECRET: process.env.JWT_SECRET as string,
         JWT_EXPIRESIN: process.env.JWT_EXPIRESIN as string,
