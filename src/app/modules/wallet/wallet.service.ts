@@ -2,7 +2,7 @@
 import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../errorHelpers/AppError";
 import { QueryBuilder } from "../../utils/QueryBuilder";
-import { ActiveStatus } from "../user/user.interface";
+import { ActiveStatus, Role } from "../user/user.interface";
 import { walletSearchableFields } from "./wallet.constant";
 import { Wallets } from "./wallet.model";
 import httpStatus from "http-status-codes";
@@ -10,6 +10,7 @@ import { IWallet } from "./wallet.interface";
 import { getTransactionId } from "../../utils/getTransactionId";
 import { Transactions } from "../transaction/transaction.model";
 import { TransactionType } from "../transaction/transaction.interface";
+import { Users } from "../user/user.model";
 
 
 const getAllWalletsService = async (query: Record<string, string>) => {
@@ -83,6 +84,75 @@ const addMoneyService = async (userId: string, amount: number) => {
     await wallet.save();
 
     return wallet.balance;
+};
+
+const withdrawMoneyService = async (userId: string, agentEmail: string, amount: number) => {
+    const agent = await Users.findOne({email: agentEmail});
+
+    if (!agent || agent.role !== Role.AGENT) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Sorry! No Agent Found with this Email Address. Please provide an Agent's Email or pay a visit to one."
+        );
+    };
+
+    if (amount <= 0) {
+        throw new AppError(httpStatus.NOT_ACCEPTABLE, "Please Provide a Positive Amount! Amount Can Not be 0 or negative.");
+    };
+
+    const userWallet = await Wallets.findOne({ ownerId: userId });
+    const agentWallet = await Wallets.findOne({ owner_email: agentEmail });
+
+    if (!userWallet) {
+        throw new AppError(httpStatus.NOT_FOUND, "Wallet Not Found! Please Contact Admin Immediately!");
+    };
+
+    if (userWallet!.activeStatus === ActiveStatus.BLOCKED) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Your Wallet is Blocked! Please Contact Admin for Details.");
+    };
+
+    if (userWallet!.isDeleted) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Your Wallet is Deleted! Please Contact Admin for Details.");
+    };
+    
+    if (!agentWallet) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Agent's Wallet Not Found! Please Notify this Agent or Provide another Agent's Email!"
+        );
+    };
+
+    if (agentWallet!.activeStatus === ActiveStatus.BLOCKED) {
+        throw new AppError(
+            httpStatus.NOT_ACCEPTABLE,
+            "This Agent's Wallet is Blocked! Please Notify this Agent or Provide another Agent's Email!"
+        );
+    };
+
+    if (agentWallet!.isDeleted) {
+        throw new AppError(
+            httpStatus.NOT_ACCEPTABLE,
+            "This Agent's Wallet is Deleted! Please Notify this Agent or Provide another Agent's Email!"
+        );
+    };
+
+    userWallet!.balance = parseFloat(((userWallet!.balance as number) - amount).toFixed(2));
+    agentWallet!.balance = parseFloat(((agentWallet!.balance as number) + amount).toFixed(2));
+
+    const transactionId = getTransactionId();
+
+    await Transactions.create({
+        type: TransactionType.WITHDRAW_MONEY,
+        transactionId,
+        from: userWallet.owner_email,
+        to: agentEmail,
+        amount
+    });
+
+    await userWallet.save();
+    await agentWallet.save();
+
+    return userWallet.balance;
 };
 
 const cashInService = async (decodedToken: JwtPayload, userEmail: string, amount: number) => {
@@ -270,6 +340,7 @@ export const WalletServices = {
     getMyWalletService,
     getSingleWalletService,
     addMoneyService,
+    withdrawMoneyService,
     cashInService,
     cashOutService,
     sendMoneyService,
