@@ -153,20 +153,34 @@ const getSingleUserService = async (id: string) => {
     };
 };
 
-const agentApprovalService = async (userId: string, payload: Partial<IUser>) => {
+const agentApprovalService = async (userId: string) => {
+    const user = await Users.findById(userId);
+    if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, "User Not Found!");
+    };
+    
+    if (user.agentStatus === AgentStatus.NOT_APPLIED) {
+        throw new AppError(httpStatus.NOT_ACCEPTABLE, "This User Did Not Request to be an Agent!");
+    };
+
+    user.role = Role.AGENT;
+    user.agentStatus = AgentStatus.APPROVED;
+
+    await user.save();
+};
+
+const agentDenialService = async (userId: string) => {
     const user = await Users.findById(userId);
     if (!user) {
         throw new AppError(httpStatus.NOT_FOUND, "User Not Found!");
     };
 
-    if (payload.agentStatus === AgentStatus.APPROVED) {
-        payload.role = Role.AGENT;
-    } else {
-        payload.role = Role.USER
+    if (user.agentStatus === AgentStatus.NOT_APPLIED) {
+        throw new AppError(httpStatus.NOT_ACCEPTABLE, "This User Did Not Request to be an Agent!");
     };
 
-    user.role = payload.role;
-    user.agentStatus = payload.agentStatus;
+    user.role = Role.USER;
+    user.agentStatus = AgentStatus.NOT_APPLIED;
 
     await user.save();
 };
@@ -179,5 +193,6 @@ export const UserServices = {
     getMeService,
     agentRequestService,
     getSingleUserService,
-    agentApprovalService
+    agentApprovalService,
+    agentDenialService
 };

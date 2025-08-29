@@ -15,6 +15,7 @@ router.get("/me", checkAuth(...Object.values(Role)), UserControllers.getMe);
 router.get("/:id", checkAuth(Role.ADMIN), UserControllers.getSingleUser)
 router.patch("/become-an-agent", checkAuth(Role.USER), UserControllers.agentRequest);
 router.patch("/agent-approval/:id", checkAuth(Role.ADMIN), UserControllers.agentApproval)
+router.patch("/agent-denial/:id", checkAuth(Role.ADMIN), UserControllers.agentDenial)
 router.patch("/update-user/:id", checkAuth(...Object.values(Role)), validateMutationRequest(updateUserZodSchema), UserControllers.updateUser);
 
 export const UserRoutes = router;

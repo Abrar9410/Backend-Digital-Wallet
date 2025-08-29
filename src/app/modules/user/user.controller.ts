@@ -101,14 +101,26 @@ const getSingleUser = catchAsync(async (req: Request, res: Response, next: NextF
 
 const agentApproval = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.params.id;
-    const payload = req.body;
     
-    await UserServices.agentApprovalService(userId, payload);
+    await UserServices.agentApprovalService(userId);
 
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.CREATED,
-        message: "Agent-Status Updated Successfully!",
+        message: "Agent-Request Approved Successfully!",
+        data: null
+    });
+});
+
+const agentDenial = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.id;
+    
+    await UserServices.agentDenialService(userId);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "Agent-Request Denied Successfully!",
         data: null
     });
 });
@@ -121,5 +133,6 @@ export const UserControllers = {
     getMe,
     agentRequest,
     getSingleUser,
-    agentApproval
+    agentApproval,
+    agentDenial
 };

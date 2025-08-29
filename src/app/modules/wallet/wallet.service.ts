@@ -2,7 +2,7 @@
 import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../errorHelpers/AppError";
 import { QueryBuilder } from "../../utils/QueryBuilder";
-import { ActiveStatus, Role } from "../user/user.interface";
+import { ActiveStatus, AgentStatus, Role } from "../user/user.interface";
 import { walletSearchableFields } from "./wallet.constant";
 import { Wallets } from "./wallet.model";
 import httpStatus from "http-status-codes";
@@ -96,6 +96,13 @@ const depositMoneyService = async (userId: string, agentEmail: string, amount: n
         );
     };
 
+    if (agent.agentStatus !== AgentStatus.APPROVED) {
+        throw new AppError(
+            httpStatus.SERVICE_UNAVAILABLE,
+            "Sorry! This Agent is currently Not Approved to handle Transaction. Please Contact another Agent for your Service."
+        );
+    };
+
     if (amount <= 0) {
         throw new AppError(httpStatus.NOT_ACCEPTABLE, "Please Provide a Positive Amount! Amount Can Not be 0 or negative.");
     };
@@ -170,6 +177,13 @@ const withdrawMoneyService = async (userId: string, agentEmail: string, amount: 
         throw new AppError(
             httpStatus.NOT_FOUND,
             "Sorry! No Agent Found with this Email Address. Please provide an Agent's Email or pay a visit to one."
+        );
+    };
+    
+    if (agent.agentStatus !== AgentStatus.APPROVED) {
+        throw new AppError(
+            httpStatus.SERVICE_UNAVAILABLE,
+            "Sorry! This Agent is currently Not Approved to handle Transaction. Please Contact another Agent for your Service."
         );
     };
 
