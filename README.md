@@ -116,9 +116,9 @@ npm start
 - **POST** `/api/users/register` – Create a new user  
 - **GET** `/api/users/all-users` – Get all users (with optional filtering, sorting, and limiting)  
 - **GET** `/api/users/me` – Get own profile
-- **GET** `/api/users/become-an-agent` – Send a request to become an Agent (User Route)
 - **GET** `/api/users/agent-requests` – Get all Agent requests (Admin Route)
 - **GET** `/api/users/:id` – Get a user by ID (Admin Route)
+- **PATCH** `/api/users/become-an-agent` – Send a request to become an Agent (User Route)
 - **PATCH** `/api/users/agent-approval/:id` – Approve or Deny Agent Request (Admin Route)  
 - **PATCH** `/api/users/update-user/:id` – Update a user (User himself or Admin)  
 
@@ -127,18 +127,18 @@ npm start
 
 - **POST** `/api/auth/login` – Login with an existing account  
 - **POST** `/api/auth/logout` – Log Out from App  
-- **POST** `/api/auth/change-password` – Any user can change his/her password through this route  
+- **PATCH** `/api/auth/change-password` – Any user can change his/her password through this route  
 
 
 ### Wallet Endpoints
 
 - **GET** `/api/wallets/all-wallets` – Get all wallets (Admin Route)  
 - **GET** `/api/wallets/my-wallet` – Get own wallet (Admin does not have any wallet)  
-- **GET** `/api/wallets/update-wallet/:walletId` – Update wallet (Admin Route)
+- **GET** `/api/wallets/:walletId` – Get single wallet (Admin Route)
 - **PATCH** `/api/wallets/top-up` – Add Money to own Wallet  
-- **PATCH** `/api/wallets/cash-in/:userEmail` – Cash In to a user's Wallet (Agent Route)  
-- **PATCH** `/api/wallets/cash-out/:userEmail` – Cash Out from a user's Wallet (Agent Route)
-- **PATCH** `/api/wallets/send-money/:receiverEmail` – Send Money to another user's Wallet
+- **PATCH** `/api/wallets/cash-in` – Cash In to a user's Wallet (Agent Route)  
+- **PATCH** `/api/wallets/cash-out` – Cash Out from a user's Wallet (Agent Route)
+- **PATCH** `/api/wallets/send-money` – Send Money to another user's Wallet
 - **PATCH** `/api/wallets/update-wallet/:id` – Update a Wallet (Admin Route)
 
 

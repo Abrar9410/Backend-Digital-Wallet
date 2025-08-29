@@ -9,7 +9,7 @@ const router = Router();
 router.post("/login", AuthControllers.credentialsLogin);
 router.post("/refresh-token", AuthControllers.getNewToken);
 router.post("/logout", AuthControllers.logout);
-router.post("/change-password", checkAuth(...Object.values(Role)), AuthControllers.changePassword);
+router.patch("/change-password", checkAuth(...Object.values(Role)), AuthControllers.changePassword);
 
 
 export const AuthRoutes = router;

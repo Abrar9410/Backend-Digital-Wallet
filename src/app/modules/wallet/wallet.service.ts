@@ -86,6 +86,83 @@ const addMoneyService = async (userId: string, amount: number) => {
     return wallet.balance;
 };
 
+const depositMoneyService = async (userId: string, agentEmail: string, amount: number) => {
+    const agent = await Users.findOne({email: agentEmail});
+
+    if (!agent || agent.role !== Role.AGENT) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Sorry! No Agent Found with this Email Address. Please provide an Agent's Email or pay a visit to one."
+        );
+    };
+
+    if (amount <= 0) {
+        throw new AppError(httpStatus.NOT_ACCEPTABLE, "Please Provide a Positive Amount! Amount Can Not be 0 or negative.");
+    };
+
+    const userWallet = await Wallets.findOne({ ownerId: userId });
+
+    if (!userWallet) {
+        throw new AppError(httpStatus.NOT_FOUND, "Wallet Not Found! Please Contact Admin Immediately!");
+    };
+
+    if (userWallet!.activeStatus === ActiveStatus.BLOCKED) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Your Wallet is Blocked! Please Contact Admin for Details.");
+    };
+
+    if (userWallet!.isDeleted) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Your Wallet is Deleted! Please Contact Admin for Details.");
+    };
+
+    const agentWallet = await Wallets.findOne({ owner_email: agentEmail });
+    
+    if (!agentWallet) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Agent's Wallet Not Found! Please Notify this Agent or Provide another Agent's Email!"
+        );
+    };
+
+    if (agentWallet!.activeStatus === ActiveStatus.BLOCKED) {
+        throw new AppError(
+            httpStatus.NOT_ACCEPTABLE,
+            "This Agent's Wallet is Blocked! Please Notify this Agent or Provide another Agent's Email!"
+        );
+    };
+
+    if (agentWallet!.isDeleted) {
+        throw new AppError(
+            httpStatus.NOT_ACCEPTABLE,
+            "This Agent's Wallet is Deleted! Please Notify this Agent or Provide another Agent's Email!"
+        );
+    };
+
+    if (amount > agentWallet.balance!) {
+        throw new AppError(
+            httpStatus.NOT_ACCEPTABLE,
+            "Sorry! This Agent does not have enough Balance. You can notify this Agent or try another one."
+        );
+    };
+
+    userWallet!.balance = parseFloat(((userWallet!.balance as number) + amount).toFixed(2));
+    agentWallet!.balance = parseFloat(((agentWallet!.balance as number) - amount).toFixed(2));
+
+    const transactionId = getTransactionId();
+
+    await Transactions.create({
+        type: TransactionType.CASH_IN,
+        transactionId,
+        from: agentEmail,
+        to: userWallet.owner_email,
+        amount
+    });
+
+    await userWallet.save();
+    await agentWallet.save();
+
+    return userWallet.balance;
+};
+
 const withdrawMoneyService = async (userId: string, agentEmail: string, amount: number) => {
     const agent = await Users.findOne({email: agentEmail});
 
@@ -101,7 +178,6 @@ const withdrawMoneyService = async (userId: string, agentEmail: string, amount: 
     };
 
     const userWallet = await Wallets.findOne({ ownerId: userId });
-    const agentWallet = await Wallets.findOne({ owner_email: agentEmail });
 
     if (!userWallet) {
         throw new AppError(httpStatus.NOT_FOUND, "Wallet Not Found! Please Contact Admin Immediately!");
@@ -114,6 +190,15 @@ const withdrawMoneyService = async (userId: string, agentEmail: string, amount: 
     if (userWallet!.isDeleted) {
         throw new AppError(httpStatus.BAD_REQUEST, "Your Wallet is Deleted! Please Contact Admin for Details.");
     };
+    
+    if (amount > userWallet.balance!) {
+        throw new AppError(
+            httpStatus.NOT_ACCEPTABLE,
+            "Insufficient Balance! You are Trying to Withdraw more money than your Account Balance."
+        );
+    };
+
+    const agentWallet = await Wallets.findOne({ owner_email: agentEmail });
     
     if (!agentWallet) {
         throw new AppError(
@@ -142,7 +227,7 @@ const withdrawMoneyService = async (userId: string, agentEmail: string, amount: 
     const transactionId = getTransactionId();
 
     await Transactions.create({
-        type: TransactionType.WITHDRAW_MONEY,
+        type: TransactionType.CASH_OUT,
         transactionId,
         from: userWallet.owner_email,
         to: agentEmail,
@@ -287,7 +372,7 @@ const sendMoneyService = async (decodedToken: JwtPayload, userEmail: string, amo
     };
 
     if (senderWallet.balance! < amount) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Not Enough Balance! Please Contact Admin for Recharge.");
+        throw new AppError(httpStatus.BAD_REQUEST, "Not Enough Balance! Please Recharge.");
     };
 
     const receiverWallet = await Wallets.findOne({ owner_email: userEmail });
@@ -340,6 +425,7 @@ export const WalletServices = {
     getMyWalletService,
     getSingleWalletService,
     addMoneyService,
+    depositMoneyService,
     withdrawMoneyService,
     cashInService,
     cashOutService,

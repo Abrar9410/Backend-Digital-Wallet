@@ -12,8 +12,8 @@ router.post("/register", validateMutationRequest(createUserZodSchema), UserContr
 router.get("/all-users", checkAuth(Role.ADMIN), UserControllers.getAllUsers);
 router.get("/agent-requests", checkAuth(Role.ADMIN), UserControllers.getAgentRequests);
 router.get("/me", checkAuth(...Object.values(Role)), UserControllers.getMe);
-router.get("/become-an-agent", checkAuth(Role.USER), UserControllers.agentRequest);
 router.get("/:id", checkAuth(Role.ADMIN), UserControllers.getSingleUser)
+router.patch("/become-an-agent", checkAuth(Role.USER), UserControllers.agentRequest);
 router.patch("/agent-approval/:id", checkAuth(Role.ADMIN), UserControllers.agentApproval)
 router.patch("/update-user/:id", checkAuth(...Object.values(Role)), validateMutationRequest(updateUserZodSchema), UserControllers.updateUser);
 

@@ -49,12 +49,14 @@ const logout = catchAsync(async (req: Request, res: Response, next: NextFunction
     res.clearCookie("token", {
         httpOnly: true,
         secure: true,
+        maxAge: 0,
         sameSite: "none"
     });
     
     res.clearCookie("refreshToken", {
         httpOnly: true,
         secure: true,
+        maxAge: 0,
         sameSite: "none"
     });
 

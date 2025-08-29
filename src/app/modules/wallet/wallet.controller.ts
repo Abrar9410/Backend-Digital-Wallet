@@ -58,6 +58,20 @@ const addMoney = catchAsync(async (req: Request, res: Response, next: NextFuncti
     });
 });
 
+const depositMoney = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+    const agentEmail = req.body.agentEmail;
+    const amount = req.body.amount;
+    const result = await WalletServices.depositMoneyService(decodedToken.userId, agentEmail, amount);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Cash In Successful!",
+        data: {newBalance: result}
+    });
+});
+
 const withdrawMoney = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload;
     const agentEmail = req.body.agentEmail;
@@ -74,7 +88,7 @@ const withdrawMoney = catchAsync(async (req: Request, res: Response, next: NextF
 
 const cashIn = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload;
-    const userEmail = req.params.userEmail;
+    const userEmail = req.body.userEmail;
     const amount = req.body.amount;
     const result = await WalletServices.cashInService(decodedToken, userEmail, amount);
 
@@ -88,7 +102,7 @@ const cashIn = catchAsync(async (req: Request, res: Response, next: NextFunction
 
 const cashOut = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload;
-    const userEmail = req.params.userEmail;
+    const userEmail = req.body.userEmail;
     const amount = req.body.amount;
     const result = await WalletServices.cashOutService(decodedToken, userEmail, amount);
 
@@ -102,7 +116,7 @@ const cashOut = catchAsync(async (req: Request, res: Response, next: NextFunctio
 
 const sendMoney = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload;
-    const receiverEmail = req.params.receiverEmail;
+    const receiverEmail = req.body.receiverEmail;
     const amount = req.body.amount;
     const result = await WalletServices.sendMoneyService(decodedToken, receiverEmail, amount);
 
@@ -133,6 +147,7 @@ export const WalletControllers = {
     getMyWallet,
     getSingleWallet,
     addMoney,
+    depositMoney,
     withdrawMoney,
     cashIn,
     cashOut,

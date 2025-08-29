@@ -25,7 +25,8 @@ const createUserService = async (payload: Partial<IUser>) => {
     const newUser = await Users.create({
         email,
         password: hashedPassword,
-        agentStatus: role === Role.AGENT ? AgentStatus.REQUESTED : AgentStatus.NOT_APPLIED,
+        role,
+        agentStatus: role === Role.AGENT ? AgentStatus.APPROVED : AgentStatus.NOT_APPLIED,
         ...rest
     });
 
