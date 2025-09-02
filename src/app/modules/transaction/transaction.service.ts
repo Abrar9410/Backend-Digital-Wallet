@@ -22,24 +22,71 @@ const getAllTransactionsService = async (query: Record<string, string>) => {
     const [data, meta] = await Promise.all([
         transactionsData.build(),
         queryBuilder.getMeta()
-    ])
+    ]);
 
     return {
         data,
         meta
-    }
-};
-
-const getMyTransactionsService = async (userEmail: string) => {
-    const sentTransactions = await Transactions.find({from: userEmail});
-    const receivedTransactions = await Transactions.find({to: userEmail});
-
-    const myTransactions = [...sentTransactions, ...receivedTransactions];
-
-    return {
-        data: myTransactions
     };
 };
+
+const getMyTransactionsService = async ( query: Record<string, string>, userEmail: string ) => {
+    
+    const searchTerm = query.searchTerm || "";
+    const sort = query.sort || "-createdAt";
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const type = query.type || "";
+
+    // Base query: transactions where user is either sender or receiver
+    const baseQuery: Record<string, unknown> = {
+        $or: [{ from: userEmail }, { to: userEmail }],
+    };
+
+    let searchCondition = {};
+    if (searchTerm) {
+        searchCondition = {
+            $or: [
+                { transactionId: { $regex: searchTerm, $options: "i" } },
+                { from: { $regex: searchTerm, $options: "i" } },
+                { to: { $regex: searchTerm, $options: "i" } },
+            ],
+        };
+    }
+
+    // Build full filter object
+    const filter = { $and: [baseQuery] };
+
+    if (type) {
+        filter.$and.push({ type });
+    };
+
+    if (searchTerm) {
+        filter.$and.push(searchCondition);
+    };
+    
+    const total = await Transactions.countDocuments(filter);
+    const skip = (page - 1) * limit;
+
+    const data = await Transactions.find(filter)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .lean();
+
+    const meta = {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+    };
+
+    return {
+        data,
+        meta
+    };
+};
+
 
 const getSingleTransactionService = async (id: string, decodedToken: JwtPayload) => {
     const transaction = await Transactions.findById(id);

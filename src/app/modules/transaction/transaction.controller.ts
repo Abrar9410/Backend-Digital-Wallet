@@ -23,8 +23,9 @@ const getAllTransactions = catchAsync(async (req: Request, res: Response, next: 
 });
 
 const getMyTransactions = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const query = req.query;
     const decodedToken = req.user as JwtPayload;
-    const result = await TransactionServices.getMyTransactionsService(decodedToken.email);
+    const result = await TransactionServices.getMyTransactionsService(query as Record<string, string>, decodedToken.email);
 
     sendResponse(res, {
         success: true,

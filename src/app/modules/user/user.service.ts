@@ -60,8 +60,6 @@ const updateUserService = async (userId: string, payload: Partial<IUser>, decode
         if (decodedToken.role === Role.USER || decodedToken.role === Role.AGENT) {
             throw new AppError(httpStatus.FORBIDDEN, "You are not authorized to update Role or Agent-Status!");
         };
-
-        throw new AppError(httpStatus.NOT_ACCEPTABLE, "Role and Agent-Status can Not be Updated through this Route!");
     };
 
     if (payload.activeStatus || payload.isDeleted /*|| payload.isVerified*/) {

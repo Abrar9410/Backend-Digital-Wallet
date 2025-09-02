@@ -24,10 +24,10 @@ export class QueryBuilder<T> {
         return this;
     };
 
-    search(searchableField: string[]): this {
+    search(searchableFields: string[]): this {
         const searchTerm = this.query.searchTerm || ""
         const searchQuery = {
-            $or: searchableField.map(field => ({ [field]: { $regex: searchTerm, $options: "i" } }))
+            $or: searchableFields.map(field => ({ [field]: { $regex: searchTerm, $options: "i" } }))
         }
         this.modelQuery = this.modelQuery.find(searchQuery)
         return this
