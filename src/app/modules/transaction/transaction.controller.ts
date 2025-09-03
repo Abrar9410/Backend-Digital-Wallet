@@ -31,7 +31,8 @@ const getMyTransactions = catchAsync(async (req: Request, res: Response, next: N
         success: true,
         statusCode: httpStatus.OK,
         message: "Your Transactions Retrieved Successfully!",
-        data: result.data
+        data: result.data,
+        meta: result.meta
     });
 });
 

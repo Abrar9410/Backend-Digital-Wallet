@@ -78,7 +78,7 @@ const getMyTransactionsService = async ( query: Record<string, string>, userEmai
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit),
+        totalPage: Math.ceil(total / limit),
     };
 
     return {
