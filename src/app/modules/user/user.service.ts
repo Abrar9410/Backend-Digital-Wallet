@@ -73,6 +73,10 @@ const updateUserService = async (userId: string, payload: Partial<IUser>, decode
     };
 
     const updatedUser = await Users.findByIdAndUpdate(userId, payload, {new: true, runValidators: true});
+    
+    if (payload.activeStatus || payload.isDeleted) {
+        await Wallets.findOneAndUpdate({ owner_email: updatedUser!.email }, { activeStatus: updatedUser!.activeStatus, isDeleted: updatedUser!.isDeleted }, { new: true, runValidators: true });
+    };
 
     return updatedUser;
 };

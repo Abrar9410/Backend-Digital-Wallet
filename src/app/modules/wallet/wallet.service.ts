@@ -34,16 +34,16 @@ const getAllWalletsService = async (query: Record<string, string>) => {
     }
 };
 
-const getMyWalletService = async (walletId: string) => {
-    const wallet = await Wallets.findById(walletId);
+const getMyWalletService = async (ownerEmail: string) => {
+    const wallet = await Wallets.findOne({ owner_email: ownerEmail });
 
     return {
         data: wallet
     };
 };
 
-const getSingleWalletService = async (ownerEmail: string) => {
-    const wallet = await Wallets.findOne({ owner_email: ownerEmail });
+const getSingleWalletService = async (walletId: string) => {
+    const wallet = await Wallets.findById(walletId);
 
     return {
         data: wallet

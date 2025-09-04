@@ -23,7 +23,7 @@ const getAllWallets = catchAsync(async (req: Request, res: Response, next: NextF
 
 const getMyWallet = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload;
-    const result = await WalletServices.getMyWalletService(decodedToken.userId);
+    const result = await WalletServices.getMyWalletService(decodedToken.email);
 
     sendResponse(res, {
         success: true,
