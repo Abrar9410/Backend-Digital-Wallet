@@ -58,6 +58,19 @@ const addMoney = catchAsync(async (req: Request, res: Response, next: NextFuncti
     });
 });
 
+const recharge = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+    const amount = req.body.amount;
+    const result = await WalletServices.rechargeService(decodedToken.userId, amount);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Recharge Successful!",
+        data: {newBalance: result}
+    });
+});
+
 const depositMoney = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload;
     const agentEmail = req.body.agentEmail;
@@ -147,6 +160,7 @@ export const WalletControllers = {
     getMyWallet,
     getSingleWallet,
     addMoney,
+    recharge,
     depositMoney,
     withdrawMoney,
     cashIn,

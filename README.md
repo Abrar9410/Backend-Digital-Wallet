@@ -136,8 +136,11 @@ npm start
 - **GET** `/api/wallets/my-wallet` – Get own wallet (Admin does not have any wallet)  
 - **GET** `/api/wallets/:walletId` – Get single wallet (Admin Route)
 - **PATCH** `/api/wallets/top-up` – Add Money to own Wallet  
+- **PATCH** `/api/wallets/deposit` – Add Money to Wallet through Agent 
+- **PATCH** `/api/wallets/withdraw` – Withdraw Money from Wallet through Agent  
 - **PATCH** `/api/wallets/cash-in` – Cash In to a user's Wallet (Agent Route)  
 - **PATCH** `/api/wallets/cash-out` – Cash Out from a user's Wallet (Agent Route)
+- **PATCH** `/api/wallets/recharge` – Recharge Agent Wallet (Agent Route)
 - **PATCH** `/api/wallets/send-money` – Send Money to another user's Wallet
 - **PATCH** `/api/wallets/update-wallet/:id` – Update a Wallet (Admin Route)
 

@@ -14,6 +14,7 @@ router.get("/my-wallet", checkAuth(Role.USER, Role.AGENT), WalletControllers.get
 router.get("/:walletId", checkAuth(Role.ADMIN), WalletControllers.getSingleWallet);
 
 router.patch("/top-up", checkAuth(...Object.values(Role)), WalletControllers.addMoney);
+router.patch("/recharge", checkAuth(Role.AGENT), WalletControllers.recharge);
 router.patch("/deposit", checkAuth(...Object.values(Role)), WalletControllers.depositMoney);
 router.patch("/withdraw", checkAuth(...Object.values(Role)), WalletControllers.withdrawMoney);
 router.patch("/cash-in", checkAuth(Role.AGENT), WalletControllers.cashIn);

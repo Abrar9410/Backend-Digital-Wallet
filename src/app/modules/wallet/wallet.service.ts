@@ -85,6 +85,31 @@ const addMoneyService = async (userId: string, amount: number) => {
 
     return wallet.balance;
 };
+const rechargeService = async (agentId: string, amount: number) => {
+    if (amount <= 0) {
+        throw new AppError(httpStatus.NOT_ACCEPTABLE, "Please Provide a Positive Amount! Amount Can Not be 0 or negative.");
+    };
+
+    const wallet = await Wallets.findOne({ ownerId: agentId });
+
+    if (!wallet) {
+        throw new AppError(httpStatus.NOT_FOUND, "Wallet Not Found! Please Contact Admin Immediately!");
+    };
+
+    if (wallet!.activeStatus === ActiveStatus.BLOCKED) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Your Wallet is Blocked! Please Contact Admin for Details.");
+    };
+
+    if (wallet!.isDeleted) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Your Wallet is Deleted! Please Contact Admin for Details.");
+    };
+
+    wallet!.balance = parseFloat(((wallet!.balance as number) + amount).toFixed(2));
+
+    await wallet.save();
+
+    return wallet.balance;
+};
 
 const depositMoneyService = async (userId: string, agentEmail: string, amount: number) => {
     const agent = await Users.findOne({email: agentEmail});
@@ -439,6 +464,7 @@ export const WalletServices = {
     getMyWalletService,
     getSingleWalletService,
     addMoneyService,
+    rechargeService,
     depositMoneyService,
     withdrawMoneyService,
     cashInService,
